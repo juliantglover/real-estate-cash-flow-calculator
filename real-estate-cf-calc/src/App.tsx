@@ -7,8 +7,8 @@ import Row from 'react-bootstrap/Row';
 import { Form, Field } from 'react-final-form';
 import { FormControl, FormLabel, InputGroup, FormCheck } from 'react-bootstrap';
 import { Header } from './Components/Text/Header';
-import { SubHeader } from './Components/Text/SubHeader';
 import { Divider } from './Components/Layout/Divider';
+import { ButtonWrapper } from './Components/Layout/ButtonWrapper';
 import { Spacer } from './Components/Layout/Spacer';
 import { ErrorText } from './Components/Text/ErrorText';
 function App() {
@@ -95,7 +95,8 @@ const composeValidators = (...validators) => value =>
     <Container fluid>
       <Row>
         <Col className="AppHeightScroll" lg={4}>
-          <Header text="Property Details" />
+          <Header text="Property Details" weight={500} size={2}/> 
+          
 
       <Form
       initialValues={
@@ -110,7 +111,7 @@ const composeValidators = (...validators) => value =>
       onSubmit={onSubmit}
       render={({ handleSubmit, form, submitting, pristine, values }) => (
         <form onSubmit={handleSubmit}>
-          <SubHeader text="Loan Details" />
+          <Header text="Loan Details" weight={400} size={1.5}/> 
           <Row>
             <Col>
             <Field name="purchasePrice" validate={composeValidators(required, mustBeNumber, minValue(0))}>
@@ -162,22 +163,24 @@ const composeValidators = (...validators) => value =>
             <Field name="downPaymentCalculationChoice">
             {({ input, meta }) => (
               <>
-                 <SubHeader text="Down Payment" /> 
+                 <Header text="Down Payment" weight={400} size={1.5}/> 
                  <Container>
                  <FormCheck
                  {...input}
                   type="radio"
-                  label="As Percent of Purchase Price"
+                  label="Percent of Purchase Price"
                   name="downPaymentChoice"
                   value="percent"
                   checked={values?.downPaymentCalculationChoice === "percent"}
+                  inline
                   />
                   <FormCheck
                   {...input}
                   type="radio"
-                  label="As Dollar Value"
+                  label="Dollar Value"
                   name="downPaymentChoice"
                   value="dollarValue"
+                  inline
                   />
                   </Container>
               </>
@@ -222,22 +225,25 @@ const composeValidators = (...validators) => value =>
             <Field  name="closingCostCalculationChoice">
             {({ input, meta }) => (
               <>
-                 <SubHeader text="Closing Costs" />
+                
+                 <Header text="Closing Costs" weight={400} size={1.5}/> 
                  <Container>
                  <FormCheck
                  {...input}
                   type="radio"
-                  label="As Percent of Purchase Price"
+                  label="Percent of Purchase Price"
                   name="closingCostChoice"
                   value="percent"
                   checked={values?.closingCostCalculationChoice === "percent"}
+                  inline
                   />
                   <FormCheck
                   {...input}
                   type="radio"
-                  label="As Dollar Value"
+                  label="Dollar Value"
                   name="closingCostChoice"
                   value="dollarValue"
+                  inline
                   />
                   </Container>
               </>
@@ -279,7 +285,8 @@ const composeValidators = (...validators) => value =>
             </Row>
             <Divider margin={"1em"}/>
           <Row>
-          <SubHeader text="Monthly Income and Expenses" />
+ 
+          <Header text="Monthly Income and Expenses" weight={400} size={1.5}/> 
             <Col>
             <Field name="rent" validate={composeValidators(required, mustBeNumber, minValue(0))}>
             {({ input, meta }) => (
@@ -393,22 +400,25 @@ const composeValidators = (...validators) => value =>
             {({ input, meta }) => (
               <> 
                   <Divider margin="1.5em" width="50%" />
-                 <SubHeader text="Capital Expenditures" size="h3"/> 
+                 
+                 <Header text="Capital Expenditures" weight={400} size={1.5}/> 
                  <Container>
                  <FormCheck
                  {...input}
                   type="radio"
-                  label="As Percent of Rent"
+                  label="Percent of Rent"
                   name="capitalExpendituresChoice"
                   value="percent"
                   checked={values?.capitalExpendituresCalculationChoice === "percent"}
+                  inline
                   />
                   <FormCheck
                   {...input}
                   type="radio"
-                  label="As Dollar Value"
+                  label="Dollar Value"
                   name="capitalExpendituresChoice"
                   value="dollarValue"
+                  inline
                   />
                   </Container>
               </>
@@ -454,22 +464,25 @@ const composeValidators = (...validators) => value =>
             {({ input, meta }) => (
               <>
               <Divider margin="1.5em" width="50%" />
-                 <SubHeader text="Property Management" size="h3"/> 
+                 
+                 <Header text="Property Management" weight={400} size={1.5}/> 
                  <Container>
                  <FormCheck
                  {...input}
                   type="radio"
-                  label="As Percent of Rent"
+                  label="Percent of Rent"
                   name="propertyManagementChoice"
                   value="percent"
+                  inline
                   checked={values?.propertyManagementCalculationChoice === "percent"}
                   />
                   <FormCheck
                   {...input}
                   type="radio"
-                  label="As Dollar Value"
+                  label="Dollar Value"
                   name="propertyManagementChoice"
                   value="dollarValue"
+                  inline
                   />
                   </Container>
               </>
@@ -509,27 +522,29 @@ const composeValidators = (...validators) => value =>
           </Field>
             </Col>
             </Row>
-          <Row>
+          <Row >
             <Field  name="maintenanceCalculationChoice">
             {({ input, meta }) => (
               <>
               <Divider margin="1.5em" width="50%" />
-                 <SubHeader text="Maintenance" size="h3"/> 
+                 <Header text="Maintenance" weight={400} size={1.5}/> 
                  <Container>
                  <FormCheck
                  {...input}
                   type="radio"
-                  label="As Percent of Rent"
+                  label="Percent of Rent"
                   name="maintenanceChoice"
                   value="percent"
+                  inline
                   checked={values?.maintenanceCalculationChoice === "percent"}
                   />
                   <FormCheck
                   {...input}
                   type="radio"
-                  label="As Dollar Value"
+                  label="Dollar Value"
                   name="maintenanceChoice"
                   value="dollarValue"
+                  inline
                   />
                   </Container>
               </>
@@ -569,10 +584,14 @@ const composeValidators = (...validators) => value =>
           </Field>
             </Col>
           </Row>
-            <Button type="submit" disabled={submitting}>
-              Submit
-            </Button>
-          <pre>{JSON.stringify(values)}</pre>
+          <Spacer margin="1em" />
+         
+            
+              <ButtonWrapper text="Calculate Cash Flow" type="submit" disabled={submitting} />
+          
+           
+            <Spacer margin="1em" />
+          
         </form>
       )}
     />
