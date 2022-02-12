@@ -1,5 +1,11 @@
-.App {
-  text-align: center;
+.AppHeight {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.AppHeightScroll {
+  overflow-y: scroll;
+  height: 100vh;
 }
 
 .App-logo {
