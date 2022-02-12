@@ -10,6 +10,7 @@ import { Header } from './Components/Text/Header';
 import { SubHeader } from './Components/Text/SubHeader';
 import { Divider } from './Components/Layout/Divider';
 import { Spacer } from './Components/Layout/Spacer';
+import { ErrorText } from './Components/Text/ErrorText';
 function App() {
 
   const [propertyValues, setPropertyValues] = useState(
@@ -42,27 +43,36 @@ function App() {
       capitalExpenditures: 0,
       vacancy: 0,
       totalMonthlyExpenses: 0,
-      cashFlow: 0
+      cashFlow: 0,
+      closingCosts:0,
+      maintenance:0,
+      propertyManagement:0
     });
 
   const calculateMortgagePayment = (propertyValues) => {
       const downPayment: number = propertyValues.downPaymentCalculationChoice === 'percent' ? ((propertyValues.downPaymentPercent)/100)*propertyValues.purchasePrice : propertyValues.downPaymentDollarValue;
       const closingCosts: number = propertyValues.closingCostCalculationChoice === 'percent' ? ((propertyValues.closingCostPercent)/100)*propertyValues.purchasePrice : propertyValues.closingCostDollarValue;
+      const propertyManagement: number = propertyValues.propertyManagementCalculationChoice === 'percent' ? ((propertyValues.propertyManagementPercent)/100)*propertyValues.rent : propertyValues.propertyManagementDollarValue;
+      const capitalExpenditures: number = propertyValues.capitalExpendituresCalculationChoice === 'percent' ? ((propertyValues.capitalExpendituresPercent)/100)*propertyValues.rent : propertyValues.capitalExpendituresDollarValue;
+      const maintenance: number = propertyValues.maintenanceCalculationChoice === 'percent' ? ((propertyValues.maintenancePercent)/100)*propertyValues.rent : propertyValues.maintenanceDollarValue;
       const interestConstant: number = ((propertyValues.interestRate/100)/12);
       const mortgageLoanAmount: number = propertyValues.purchasePrice - downPayment;
       const principalAndInterest: number = mortgageLoanAmount*(interestConstant*Math.pow((1+interestConstant),360)/(Math.pow((1+interestConstant),360)-1));
       const vacancy: number = (propertyValues.vacancy/100)*propertyValues.rent;
-      const totalMonthlyExpenses: number = principalAndInterest + vacancy + propertyValues.monthlyUtilities + propertyValues.hoa + propertyValues.taxes + propertyValues.insurance;
+      const totalMonthlyExpenses: number = principalAndInterest + vacancy + propertyManagement + capitalExpenditures + maintenance + propertyValues.monthlyUtilities + propertyValues.hoa + propertyValues.taxes + propertyValues.insurance;
       const cashFlow: number = propertyValues.rent - totalMonthlyExpenses
       setCashFlowValues({
         downPayment: downPayment,
         interestConstant: interestConstant,
         mortgageLoanAmount: mortgageLoanAmount,
         principalAndInterest: principalAndInterest,
-        capitalExpenditures: 0,
+        capitalExpenditures: capitalExpenditures,
         vacancy: vacancy,
         totalMonthlyExpenses:totalMonthlyExpenses,
-        cashFlow: cashFlow
+        cashFlow: cashFlow,
+        closingCosts: closingCosts,
+        maintenance: maintenance,
+        propertyManagement:propertyManagement
       })
   }
 
@@ -90,11 +100,11 @@ const composeValidators = (...validators) => value =>
       <Form
       initialValues={
         {
-          "propertyManagementCalculationChoice":"percent",
-          "maintenanceCalculationChoice":"percent",
-          "closingCostCalculationChoice":"percent",
-          "downPaymentCalculationChoice":"percent",
-          "capitalExpendituresCalculationChoice":"percent",
+          propertyManagementCalculationChoice:"percent",
+          maintenanceCalculationChoice:"percent",
+          closingCostCalculationChoice:"percent",
+          downPaymentCalculationChoice:"percent",
+          capitalExpendituresCalculationChoice:"percent",
         }
       }
       onSubmit={onSubmit}
@@ -111,7 +121,7 @@ const composeValidators = (...validators) => value =>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl {...input} type="number" placeholder="Purchase Price" />
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </>
             )}
           </Field>
@@ -125,7 +135,7 @@ const composeValidators = (...validators) => value =>
                 <FormControl {...input} type="number" placeholder="Mortgage Term" />
                 <InputGroup.Text>Years</InputGroup.Text>
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </>
             )}
           </Field>
@@ -139,7 +149,7 @@ const composeValidators = (...validators) => value =>
                 <FormControl {...input} type="number" placeholder="Interest Rate" />
                 <InputGroup.Text>%</InputGroup.Text>
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
@@ -186,7 +196,7 @@ const composeValidators = (...validators) => value =>
                 <FormControl {...input} disabled={values?.downPaymentCalculationChoice !== "percent"} type="number" placeholder="Down Payment Percent" />
                 <InputGroup.Text>%</InputGroup.Text>
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
@@ -201,7 +211,7 @@ const composeValidators = (...validators) => value =>
                 <FormControl disabled={values?.downPaymentCalculationChoice === "percent"} {...input} type="number" placeholder="Down Payment Dollar Value" />
     
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
@@ -237,7 +247,7 @@ const composeValidators = (...validators) => value =>
             <Spacer margin="0.25em" />
             <Row>
             <Col>
-            <Field  name="closingCostPercent" validate={composeValidators(required, mustBeNumber, minValue(0))}>
+            <Field  name="closingCostPercent" validate={ propertyValues.closingCostCalculationChoice === "percent" ? composeValidators(required, mustBeNumber, minValue(0), maxValue(100)) : null}>
             {({ input, meta }) => (
               <div>
                 <FormLabel>Percent</FormLabel>
@@ -246,13 +256,13 @@ const composeValidators = (...validators) => value =>
                 <FormControl {...input} disabled={values?.closingCostCalculationChoice !== "percent"} type="number" placeholder="Closing Cost Percent" />
                 <InputGroup.Text>%</InputGroup.Text>
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
             </Col>
             <Col>
-            <Field  name="closingCostDollarValue" validate={composeValidators(required, mustBeNumber, minValue(0))}>
+            <Field  name="closingCostDollarValue" validate={ propertyValues.closingCostCalculationChoice !== "percent" ? composeValidators(required, mustBeNumber, minValue(0)) : null}>
             {({ input, meta }) => (
               <div>
                 <FormLabel> Dollar Value</FormLabel>
@@ -261,7 +271,7 @@ const composeValidators = (...validators) => value =>
                 <FormControl disabled={values?.closingCostCalculationChoice === "percent"} {...input} type="number" placeholder="Closing Cost Dollar Value" />
                
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
@@ -269,7 +279,7 @@ const composeValidators = (...validators) => value =>
             </Row>
             <Divider margin={"1em"}/>
           <Row>
-          <SubHeader text="Monthly Expenses" />
+          <SubHeader text="Monthly Income and Expenses" />
             <Col>
             <Field name="rent" validate={composeValidators(required, mustBeNumber, minValue(0))}>
             {({ input, meta }) => (
@@ -279,7 +289,7 @@ const composeValidators = (...validators) => value =>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl {...input} type="number" placeholder="Monthly Rent" />
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </>
             )}
           </Field>
@@ -293,7 +303,7 @@ const composeValidators = (...validators) => value =>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl {...input} type="number" placeholder="Monthly Utilities" />
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </>
             )}
           </Field>
@@ -310,7 +320,7 @@ const composeValidators = (...validators) => value =>
                 <FormControl {...input} type="number" placeholder="Vacancy" />
                 <InputGroup.Text>%</InputGroup.Text>
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </>
             )}
           </Field>
@@ -324,7 +334,7 @@ const composeValidators = (...validators) => value =>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl {...input} type="number" placeholder="Monthly HOA Fee" />
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </>
             )}
           </Field>
@@ -341,7 +351,7 @@ const composeValidators = (...validators) => value =>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl {...input} type="number" placeholder="Insurance" />
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </>
             )}
           </Field>
@@ -355,7 +365,7 @@ const composeValidators = (...validators) => value =>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl {...input} type="number" placeholder="Taxes" />
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </>
             )}
           </Field>
@@ -372,7 +382,7 @@ const composeValidators = (...validators) => value =>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl {...input} type="number" placeholder="Additional Monthly Expenses" />
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </>
             )}
           </Field>
@@ -408,7 +418,7 @@ const composeValidators = (...validators) => value =>
             <Spacer margin="0.5em" />
             <Row>
             <Col>
-            <Field  name="capitalExpendituresPercent" validate={composeValidators(required, mustBeNumber, minValue(0))}>
+            <Field  name="capitalExpendituresPercent" validate={ propertyValues.capitalExpendituresCalculationChoice === "percent" ? composeValidators(required, mustBeNumber, minValue(0), maxValue(100)) : null}>
             {({ input, meta }) => (
               <div>
                 <FormLabel>Percent</FormLabel>
@@ -417,13 +427,13 @@ const composeValidators = (...validators) => value =>
                 <FormControl {...input} disabled={values?.capitalExpendituresCalculationChoice !== "percent"} type="number" placeholder="Capital Expenditures Percent" />
                 <InputGroup.Text>%</InputGroup.Text>
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
             </Col>
             <Col>
-            <Field  name="capitalExpendituresDollarValue" validate={composeValidators(required, mustBeNumber, minValue(0))}>
+            <Field  name="capitalExpendituresDollarValue" validate={ propertyValues.capitalExpendituresCalculationChoice !== "percent" ? composeValidators(required, mustBeNumber, minValue(0)) : null}>
             {({ input, meta }) => (
               <div>
                 <FormLabel>Dollar Value</FormLabel>
@@ -432,7 +442,7 @@ const composeValidators = (...validators) => value =>
                 <FormControl disabled={values?.capitalExpendituresCalculationChoice === "percent"} {...input} type="number" placeholder="Capital Expenditures Dollar Value" />
                
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
@@ -469,7 +479,7 @@ const composeValidators = (...validators) => value =>
             <Spacer margin="0.5em" />
             <Row>
             <Col>
-            <Field  name="propertyManagementPercent" validate={composeValidators(required, mustBeNumber, minValue(0))}>
+            <Field  name="propertyManagementPercent" validate={composeValidators(required, mustBeNumber, minValue(0), maxValue(100))}>
             {({ input, meta }) => (
               <div>
                 <FormLabel> Percent</FormLabel>
@@ -478,22 +488,22 @@ const composeValidators = (...validators) => value =>
                 <FormControl {...input} disabled={values?.propertyManagementCalculationChoice !== "percent"} type="number" placeholder="Percent" />
                 <InputGroup.Text>%</InputGroup.Text>
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
             </Col>
             <Col>
-            <Field  name="propertyManagementDollarValue" validate={composeValidators(required, mustBeNumber, minValue(0))}>
+            <Field  name="propertyManagementDollarValue" validate={ propertyValues.propertyManagementCalculationChoice !== "percent" ? composeValidators(required, mustBeNumber, minValue(0), maxValue(100)) : null}>
             {({ input, meta }) => (
               <div>
                 <FormLabel>Dollar Value</FormLabel>
                 <InputGroup>
                 <InputGroup.Text>$</InputGroup.Text>
-                <FormControl disabled={values?.propertyManagementCalculationChoice === "percent"} {...input} type="number" placeholder="Dollar Value" />
+                <FormControl disabled={values?.propertyManagementCalculationChoice == "percent"} {...input} type="number" placeholder="Dollar Value" />
                 
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
@@ -529,7 +539,7 @@ const composeValidators = (...validators) => value =>
             <Spacer margin="0.5em" />
             <Row>
             <Col>
-            <Field  name="maintenancePercent" validate={composeValidators(required, mustBeNumber, minValue(0))}>
+            <Field  name="maintenancePercent" validate={ propertyValues.maintenanceCalculationChoice === "percent" ? composeValidators(required, mustBeNumber, minValue(0), maxValue(100)) : null}>
             {({ input, meta }) => (
               <div>
                 <FormLabel> Percent</FormLabel>
@@ -538,13 +548,13 @@ const composeValidators = (...validators) => value =>
                 <FormControl {...input} disabled={values?.maintenanceCalculationChoice !== "percent"} type="number" placeholder="Maintenance Percent" />
                 <InputGroup.Text>%</InputGroup.Text>
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
             </Col>
             <Col>
-            <Field  name="maintenanceDollarValue" validate={composeValidators(required, mustBeNumber, minValue(0))}>
+            <Field  name="maintenanceDollarValue" validate={ propertyValues.maintenanceCalculationChoice !== "percent" ? composeValidators(required, mustBeNumber, minValue(0)) : null}>
             {({ input, meta }) => (
               <div>
                 <FormLabel>Dollar Value</FormLabel>
@@ -553,7 +563,7 @@ const composeValidators = (...validators) => value =>
                 <FormControl disabled={values?.maintenanceCalculationChoice === "percent"} {...input} type="number" placeholder="Maintenance Dollar Value" />
                
                 </InputGroup>
-                {meta.error && meta.touched && <span>{meta.error}</span>}
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
@@ -562,7 +572,7 @@ const composeValidators = (...validators) => value =>
             <Button type="submit" disabled={submitting}>
               Submit
             </Button>
-          {/* <pre>{JSON.stringify(values)}</pre> */}
+          <pre>{JSON.stringify(values)}</pre>
         </form>
       )}
     />
@@ -597,7 +607,10 @@ const composeValidators = (...validators) => value =>
       Monthly Capital Expenditures: $ {cashFlowValues.capitalExpenditures}
       </Col>
       <Col>
-      Monthly CashFlow: $ {cashFlowValues.principalAndInterest + propertyValues.taxes}
+      Monthly Property Management: $ {cashFlowValues.propertyManagement}
+      </Col>
+      <Col>
+      Monthly CashFlow: $ {cashFlowValues.cashFlow}
       </Col>
     </Row>
     </Col>
