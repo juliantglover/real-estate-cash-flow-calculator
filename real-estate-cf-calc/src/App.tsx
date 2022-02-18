@@ -4,6 +4,7 @@ import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
+import { VictoryPie } from 'victory';
 import { Form, Field } from 'react-final-form';
 import { FormControl, FormLabel, InputGroup, FormCheck } from 'react-bootstrap';
 import { Header } from './Components/Text/Header';
@@ -11,8 +12,37 @@ import { Divider } from './Components/Layout/Divider';
 import { ButtonWrapper } from './Components/Layout/ButtonWrapper';
 import { Spacer } from './Components/Layout/Spacer';
 import { ErrorText } from './Components/Text/ErrorText';
+
 function App() {
 
+  const data02 = [
+    {
+      "name": "Group A",
+      "value": 2400
+    },
+    {
+      "name": "Group B",
+      "value": 4567
+    },
+    {
+      "name": "Group C",
+      "value": 1398
+    },
+    {
+      "name": "Group D",
+      "value": 9800
+    },
+    {
+      "name": "Group E",
+      "value": 3908
+    },
+    {
+      "name": "Group F",
+      "value": 4800
+    }
+  ];
+    
+  
   const [propertyValues, setPropertyValues] = useState(
     { 
       purchasePrice: 0,
@@ -46,6 +76,8 @@ function App() {
       cashFlow: 0,
       closingCosts:0,
       maintenance:0,
+      fixedExpenses: 0,
+      profitAfterFixedExpenses: 0,
       propertyManagement:0
     });
 
@@ -59,8 +91,10 @@ function App() {
       const mortgageLoanAmount: number = propertyValues.purchasePrice - downPayment;
       const principalAndInterest: number = mortgageLoanAmount*(interestConstant*Math.pow((1+interestConstant),360)/(Math.pow((1+interestConstant),360)-1));
       const vacancy: number = (propertyValues.vacancy/100)*propertyValues.rent;
+      const fixedExpenses: number = principalAndInterest + propertyManagement + propertyValues.monthlyUtilities + propertyValues.hoa + propertyValues.taxes + propertyValues.insurance;
       const totalMonthlyExpenses: number = principalAndInterest + vacancy + propertyManagement + capitalExpenditures + maintenance + propertyValues.monthlyUtilities + propertyValues.hoa + propertyValues.taxes + propertyValues.insurance;
-      const cashFlow: number = propertyValues.rent - totalMonthlyExpenses
+      const cashFlow: number = propertyValues.rent - totalMonthlyExpenses;
+      const profitAfterFixedExpenses: number = propertyValues.rent - fixedExpenses;
       setCashFlowValues({
         downPayment: downPayment,
         interestConstant: interestConstant,
@@ -70,8 +104,10 @@ function App() {
         vacancy: vacancy,
         totalMonthlyExpenses:totalMonthlyExpenses,
         cashFlow: cashFlow,
+        fixedExpenses: fixedExpenses,
         closingCosts: closingCosts,
         maintenance: maintenance,
+        profitAfterFixedExpenses: profitAfterFixedExpenses,
         propertyManagement:propertyManagement
       })
   }
@@ -434,7 +470,7 @@ const composeValidators = (...validators) => value =>
                 <FormLabel>Percent</FormLabel>
                 <InputGroup>
                 
-                <FormControl {...input} disabled={values?.capitalExpendituresCalculationChoice !== "percent"} type="number" placeholder="Capital Expenditures Percent" />
+                <FormControl {...input} disabled={values?.capitalExpendituresCalculationChoice !== "percent"} type="number" placeholder="Percent" />
                 <InputGroup.Text>%</InputGroup.Text>
                 </InputGroup>
                 {meta.error && meta.touched && <ErrorText message={meta.error}/>}
@@ -449,7 +485,7 @@ const composeValidators = (...validators) => value =>
                 <FormLabel>Dollar Value</FormLabel>
                 <InputGroup>
                 <InputGroup.Text>$</InputGroup.Text>
-                <FormControl disabled={values?.capitalExpendituresCalculationChoice === "percent"} {...input} type="number" placeholder="Capital Expenditures Dollar Value" />
+                <FormControl disabled={values?.capitalExpendituresCalculationChoice === "percent"} {...input} type="number" placeholder="Dollar Value" />
                
                 </InputGroup>
                 {meta.error && meta.touched && <ErrorText message={meta.error}/>}
@@ -560,7 +596,7 @@ const composeValidators = (...validators) => value =>
                 <FormLabel> Percent</FormLabel>
                 <InputGroup>
                 
-                <FormControl {...input} disabled={values?.maintenanceCalculationChoice !== "percent"} type="number" placeholder="Maintenance Percent" />
+                <FormControl {...input} disabled={values?.maintenanceCalculationChoice !== "percent"} type="number" placeholder="Percent" />
                 <InputGroup.Text>%</InputGroup.Text>
                 </InputGroup>
                 {meta.error && meta.touched && <ErrorText message={meta.error}/>}
@@ -575,7 +611,7 @@ const composeValidators = (...validators) => value =>
                 <FormLabel>Dollar Value</FormLabel>
                 <InputGroup>
                 <InputGroup.Text>$</InputGroup.Text>
-                <FormControl disabled={values?.maintenanceCalculationChoice === "percent"} {...input} type="number" placeholder="Maintenance Dollar Value" />
+                <FormControl disabled={values?.maintenanceCalculationChoice === "percent"} {...input} type="number" placeholder="Dollar Value" />
                
                 </InputGroup>
                 {meta.error && meta.touched && <ErrorText message={meta.error}/>}
@@ -596,42 +632,44 @@ const composeValidators = (...validators) => value =>
       )}
     />
     </Col>
-    <Col lg={8}>
+    <Col lg={8} className="AppHeightScroll">
+      <Container>
     <Row>
-    <Header text="Cash Flow Analysis" />
-      <Col>
-      Monthy Rent: $ {propertyValues.rent}
-      </Col>
-      <Col>
-      Monthly Principal and Interest: $ {cashFlowValues.principalAndInterest}
-      </Col>
-      <Col>
-      Monthly Taxes: $ {propertyValues.taxes}
-      </Col>
-      <Col>
-      Monthly Mortgage: $ {cashFlowValues.principalAndInterest + propertyValues.taxes}
-      </Col>
+    <Header text="Cash Flow Analysis" weight={500} size={2}/>
+    <Row>
+      <Header text="Monthly Expenses" weight={400} size={1.5}></Header>
+      <Row>
+        <p>Principal &amp; Interest: $ {cashFlowValues.principalAndInterest}</p>
+        <p>Home Insurance: $ {propertyValues.insurance}</p>
+        <p>Property Taxes: $ {propertyValues.taxes}</p>
+        <p>HOA Fee: $ {propertyValues.hoa}</p>
+        <p>Mortgage Insurance: $ 0</p>
+        <p>Utilities: $ {propertyValues.monthlyUtilities}</p>
+        <p>Capital Expenditures: $ {cashFlowValues.capitalExpenditures}</p>
+        <p>Maintenance: $ {cashFlowValues.maintenance}</p>
+        <p>Vacancy: $ {cashFlowValues.vacancy}</p>
+        <p>Profit after Fixed Expenses: $ {cashFlowValues.profitAfterFixedExpenses}</p>
+        <p>Cash Flow: $ {cashFlowValues.cashFlow}</p>
       </Row>
       <Row>
-      <Col>
-      Monthly Utilities: $ {propertyValues.monthlyUtilities}
-      </Col>
-      <Col>
-      Monthly HOA Fee: $ {propertyValues.hoa}
-      </Col>
-      <Col>
-      Monthly Vacancy: $ {cashFlowValues.vacancy}
-      </Col>
-      <Col>
-      Monthly Capital Expenditures: $ {cashFlowValues.capitalExpenditures}
-      </Col>
-      <Col>
-      Monthly Property Management: $ {cashFlowValues.propertyManagement}
-      </Col>
-      <Col>
-      Monthly CashFlow: $ {cashFlowValues.cashFlow}
-      </Col>
+      <VictoryPie
+      colorScale={["tomato", "orange", "gold", "cyan"]}
+      style={{
+        labels: {
+          fontSize: 8, fill: "#c43a31", margin:"1px"
+        }
+      }}
+  data={[
+    { x: "Prinicipal and Interest", y: cashFlowValues.principalAndInterest },
+    { x: "Home Insurance", y: propertyValues.insurance },
+    { x: "Property Taxes", y: propertyValues.taxes },
+    { x: "HOA Fees", y: propertyValues.hoa },
+  ]}
+/>
+      </Row>
     </Row>
+    </Row>
+    </Container>
     </Col>
     </Row>
     </Container>
