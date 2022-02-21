@@ -9,6 +9,7 @@ import { Form, Field } from 'react-final-form';
 import { FormControl, FormLabel, InputGroup, FormCheck } from 'react-bootstrap';
 import { Header } from './Components/Text/Header';
 import { Divider } from './Components/Layout/Divider';
+import { ColumnDivider } from './Components/Layout/ColumnDivider';
 import { ButtonWrapper } from './Components/Layout/ButtonWrapper';
 import { Spacer } from './Components/Layout/Spacer';
 import { ErrorText } from './Components/Text/ErrorText';
@@ -41,8 +42,7 @@ function App() {
       "value": 4800
     }
   ];
-    
-  
+
   const [propertyValues, setPropertyValues] = useState(
     { 
       purchasePrice: 0,
@@ -130,7 +130,6 @@ const composeValidators = (...validators) => value =>
     <div className='AppHeight'>
     <Container fluid>
       <Row>
-        <Col className="AppHeightScroll" lg={4}>
           <Header text="Property Details" weight={500} size={2}/> 
           
 
@@ -147,59 +146,57 @@ const composeValidators = (...validators) => value =>
       onSubmit={onSubmit}
       render={({ handleSubmit, form, submitting, pristine, values }) => (
         <form onSubmit={handleSubmit}>
-          <Header text="Loan Details" weight={400} size={1.5}/> 
+          <Header text="Loan and Property Details" weight={400} size={1.5}/> 
+          <Container>
           <Row>
-            <Col>
+            <Col lg={3}>
             <Field name="purchasePrice" validate={composeValidators(required, mustBeNumber, minValue(0))}>
             {({ input, meta }) => (
               <>
-                <FormLabel>Purchase Price</FormLabel>
-                <InputGroup>
+                
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Purchase Price</FormLabel>
                 <InputGroup.Text>$</InputGroup.Text>
-                <FormControl {...input} type="number" placeholder="Purchase Price" />
+                <FormControl {...input} type="number" placeholder="100,000" />
                 </InputGroup>
                 {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </>
             )}
           </Field>
-            </Col>
-            <Col>
+    
             <Field name="mortgageTerm" validate={composeValidators(required, mustBeNumber, minValue(0))}>
             {({ input, meta }) => (
               <>
-                <FormLabel>Mortgage Term</FormLabel>
-                <InputGroup>
-                <FormControl {...input} type="number" placeholder="Mortgage Term" />
+                
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Mortgage Term</FormLabel>
+                <FormControl {...input} type="number" placeholder="30" />
                 <InputGroup.Text>Years</InputGroup.Text>
                 </InputGroup>
                 {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </>
             )}
           </Field>
-          </Col>
-          <Col>
+       
             <Field  name="interestRate" validate={composeValidators(required, mustBeNumber, minValue(0))}>
             {({ input, meta }) => (
               <div>
-                <FormLabel>Interest Rate</FormLabel>
-                <InputGroup>
-                <FormControl {...input} type="number" placeholder="Interest Rate" />
+                
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Interest Rate</FormLabel>
+                <FormControl {...input} type="number" placeholder="3.75" />
                 <InputGroup.Text>%</InputGroup.Text>
                 </InputGroup>
                 {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
-          </Col>
-            </Row>
-           
-              <Divider margin={"1em"}/>
-              
-          <Row>
+          
+          <Divider margin="1.5em" width="75%" />
             <Field name="downPaymentCalculationChoice">
             {({ input, meta }) => (
               <>
-                 <Header text="Down Payment" weight={400} size={1.5}/> 
+                 <Header text="Down Payment" weight={400} size={1.2}/> 
                  <Container>
                  <FormCheck
                  {...input}
@@ -222,47 +219,41 @@ const composeValidators = (...validators) => value =>
               </>
             )}
             </Field>
-            </Row>
-            <Spacer margin="0.25em" />
-            <Row>
-              <Col>
+        
             <Field  name="downPaymentPercent" validate={values?.downPaymentCalculationChoice === "percent" ? composeValidators(required, mustBeNumber, minValue(0)) : null}>
             {({ input, meta }) => (
               <div>
-                <FormLabel>Percent</FormLabel>
-                <InputGroup>
-               
-                <FormControl {...input} disabled={values?.downPaymentCalculationChoice !== "percent"} type="number" placeholder="Down Payment Percent" />
+                
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Percent</FormLabel>
+                <FormControl {...input} disabled={values?.downPaymentCalculationChoice !== "percent"} type="number" placeholder="20" />
                 <InputGroup.Text>%</InputGroup.Text>
                 </InputGroup>
                 {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
-          </Col>
-          <Col>
+       
+          
             <Field  name="downPaymentDollarValue" validate={values?.downPaymentCalculationChoice !== "percent" ? composeValidators(required, mustBeNumber, minValue(0)) : null}>
             {({ input, meta }) => (
               <div>
-                <FormLabel>Dollar Value</FormLabel>
-                <InputGroup>
+                
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Dollar Value</FormLabel>
                 <InputGroup.Text>$</InputGroup.Text>
-                <FormControl disabled={values?.downPaymentCalculationChoice === "percent"} {...input} type="number" placeholder="Down Payment Dollar Value" />
+                <FormControl disabled={values?.downPaymentCalculationChoice === "percent"} {...input} type="number" placeholder="20,000" />
     
                 </InputGroup>
                 {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
-          </Col>
-            </Row>
-            <Divider margin={"1em"}/>
-          <Row>
-            <Field  name="closingCostCalculationChoice">
+          <Field  name="closingCostCalculationChoice">
             {({ input, meta }) => (
               <>
-                
-                 <Header text="Closing Costs" weight={400} size={1.5}/> 
+                <Divider margin="1.5em" width="75%" />
+                 <Header text="Closing Costs" weight={400} size={1.2}/> 
                  <Container>
                  <FormCheck
                  {...input}
@@ -285,50 +276,46 @@ const composeValidators = (...validators) => value =>
               </>
             )}
             </Field>
-            </Row>
-            <Spacer margin="0.25em" />
-            <Row>
-            <Col>
             <Field  name="closingCostPercent" validate={ propertyValues.closingCostCalculationChoice === "percent" ? composeValidators(required, mustBeNumber, minValue(0), maxValue(100)) : null}>
             {({ input, meta }) => (
               <div>
-                <FormLabel>Percent</FormLabel>
-                <InputGroup>
-                
-                <FormControl {...input} disabled={values?.closingCostCalculationChoice !== "percent"} type="number" placeholder="Closing Cost Percent" />
+
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Percent</FormLabel>
+                <FormControl {...input} disabled={values?.closingCostCalculationChoice !== "percent"} type="number" placeholder="2" />
                 <InputGroup.Text>%</InputGroup.Text>
                 </InputGroup>
                 {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
-            </Col>
-            <Col>
             <Field  name="closingCostDollarValue" validate={ propertyValues.closingCostCalculationChoice !== "percent" ? composeValidators(required, mustBeNumber, minValue(0)) : null}>
             {({ input, meta }) => (
               <div>
-                <FormLabel> Dollar Value</FormLabel>
-                <InputGroup>
+                
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel"> Dollar Value</FormLabel>
                 <InputGroup.Text>$</InputGroup.Text>
-                <FormControl disabled={values?.closingCostCalculationChoice === "percent"} {...input} type="number" placeholder="Closing Cost Dollar Value" />
+                <FormControl disabled={values?.closingCostCalculationChoice === "percent"} {...input} type="number" placeholder="2,000" />
                
                 </InputGroup>
                 {meta.error && meta.touched && <ErrorText message={meta.error}/>}
               </div>
             )}
           </Field>
-            </Col>
-            </Row>
-            <Divider margin={"1em"}/>
-          <Row>
- 
+          </Col>
+          <Col lg={1}>
+          <ColumnDivider />
+          </Col>
+          <Col lg={3}>
           <Header text="Monthly Income and Expenses" weight={400} size={1.5}/> 
-            <Col>
+            
             <Field name="rent" validate={composeValidators(required, mustBeNumber, minValue(0))}>
             {({ input, meta }) => (
               <>
-                <FormLabel>Monthly Rent</FormLabel>
-                <InputGroup>
+                
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Monthly Rent</FormLabel>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl {...input} type="number" placeholder="Monthly Rent" />
                 </InputGroup>
@@ -336,13 +323,13 @@ const composeValidators = (...validators) => value =>
               </>
             )}
           </Field>
-            </Col>
-            <Col>
+         
             <Field name="monthlyUtilities" validate={composeValidators(required, mustBeNumber, minValue(0))}>
             {({ input, meta }) => (
               <>
-                <FormLabel>Monthly Utilities</FormLabel>
-                <InputGroup>
+
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Monthly Utilities</FormLabel>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl {...input} type="number" placeholder="Monthly Utilities" />
                 </InputGroup>
@@ -350,30 +337,12 @@ const composeValidators = (...validators) => value =>
               </>
             )}
           </Field>
-            </Col>
-            </Row>
-            <Spacer margin="0.5em" />
-            <Row>
-            <Col>
-            <Field name="vacancy" validate={composeValidators(required, mustBeNumber, minValue(0))}>
-            {({ input, meta }) => (
-              <>
-                <FormLabel>Vacancy Percent</FormLabel>
-                <InputGroup>
-                <FormControl {...input} type="number" placeholder="Vacancy" />
-                <InputGroup.Text>%</InputGroup.Text>
-                </InputGroup>
-                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
-              </>
-            )}
-          </Field>
-            </Col>
-            <Col>
             <Field name="hoa" validate={composeValidators(required, mustBeNumber, minValue(0))}>
             {({ input, meta }) => (
               <>
-                <FormLabel>Monthly HOA Fee</FormLabel>
-                <InputGroup>
+
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Monthly HOA Fee</FormLabel>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl {...input} type="number" placeholder="Monthly HOA Fee" />
                 </InputGroup>
@@ -381,16 +350,12 @@ const composeValidators = (...validators) => value =>
               </>
             )}
           </Field>
-            </Col>
-          </Row>
-          <Spacer margin="0.5em" />
-          <Row>
-            <Col>
             <Field name="insurance" validate={composeValidators(required, mustBeNumber, minValue(0))}>
             {({ input, meta }) => (
               <>
-                <FormLabel>Insurance</FormLabel>
-                <InputGroup>
+                
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Insurance</FormLabel>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl {...input} type="number" placeholder="Insurance" />
                 </InputGroup>
@@ -398,13 +363,12 @@ const composeValidators = (...validators) => value =>
               </>
             )}
           </Field>
-            </Col>
-            <Col>
             <Field name="taxes" validate={composeValidators(required, mustBeNumber, minValue(0))}>
             {({ input, meta }) => (
               <>
-                <FormLabel>Taxes</FormLabel>
-                <InputGroup>
+                
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Taxes</FormLabel>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl {...input} type="number" placeholder="Taxes" />
                 </InputGroup>
@@ -412,16 +376,12 @@ const composeValidators = (...validators) => value =>
               </>
             )}
           </Field>
-            </Col>
-          </Row>
-          <Spacer margin="0.25em" />
-          <Row>
-            <Col>
             <Field name="additionalMonthlyExpenses" validate={composeValidators(required, mustBeNumber, minValue(0))}>
             {({ input, meta }) => (
               <>
-                <FormLabel>Additional Monthly Expenses</FormLabel>
-                <InputGroup>
+                
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Additional Monthly Expenses</FormLabel>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl {...input} type="number" placeholder="Additional Monthly Expenses" />
                 </InputGroup>
@@ -429,79 +389,12 @@ const composeValidators = (...validators) => value =>
               </>
             )}
           </Field>
-            </Col>
-          </Row>
-          <Row>
-            <Field  name="capitalExpendituresCalculationChoice">
-            {({ input, meta }) => (
-              <> 
-                  <Divider margin="1.5em" width="50%" />
-                 
-                 <Header text="Capital Expenditures" weight={400} size={1.5}/> 
-                 <Container>
-                 <FormCheck
-                 {...input}
-                  type="radio"
-                  label="Percent of Rent"
-                  name="capitalExpendituresChoice"
-                  value="percent"
-                  checked={values?.capitalExpendituresCalculationChoice === "percent"}
-                  inline
-                  />
-                  <FormCheck
-                  {...input}
-                  type="radio"
-                  label="Dollar Value"
-                  name="capitalExpendituresChoice"
-                  value="dollarValue"
-                  inline
-                  />
-                  </Container>
-              </>
-            )}
-            </Field>
-            </Row>
-            <Spacer margin="0.5em" />
-            <Row>
-            <Col>
-            <Field  name="capitalExpendituresPercent" validate={ propertyValues.capitalExpendituresCalculationChoice === "percent" ? composeValidators(required, mustBeNumber, minValue(0), maxValue(100)) : null}>
-            {({ input, meta }) => (
-              <div>
-                <FormLabel>Percent</FormLabel>
-                <InputGroup>
-                
-                <FormControl {...input} disabled={values?.capitalExpendituresCalculationChoice !== "percent"} type="number" placeholder="Percent" />
-                <InputGroup.Text>%</InputGroup.Text>
-                </InputGroup>
-                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
-              </div>
-            )}
-          </Field>
-            </Col>
-            <Col>
-            <Field  name="capitalExpendituresDollarValue" validate={ propertyValues.capitalExpendituresCalculationChoice !== "percent" ? composeValidators(required, mustBeNumber, minValue(0)) : null}>
-            {({ input, meta }) => (
-              <div>
-                <FormLabel>Dollar Value</FormLabel>
-                <InputGroup>
-                <InputGroup.Text>$</InputGroup.Text>
-                <FormControl disabled={values?.capitalExpendituresCalculationChoice === "percent"} {...input} type="number" placeholder="Dollar Value" />
-               
-                </InputGroup>
-                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
-              </div>
-            )}
-          </Field>
-            </Col>
-          </Row>
-          <Row>
-           
-            <Field  name="propertyManagementCalculationChoice">
+          <Field  name="propertyManagementCalculationChoice">
             {({ input, meta }) => (
               <>
-              <Divider margin="1.5em" width="50%" />
+              <Divider margin="1.5em" width="75%" />
                  
-                 <Header text="Property Management" weight={400} size={1.5}/> 
+                 <Header text="Property Management" weight={400} size={1.2}/> 
                  <Container>
                  <FormCheck
                  {...input}
@@ -524,16 +417,14 @@ const composeValidators = (...validators) => value =>
               </>
             )}
             </Field>
-            </Row>
-            <Spacer margin="0.5em" />
-            <Row>
-            <Col>
+
+         
             <Field  name="propertyManagementPercent" validate={composeValidators(required, mustBeNumber, minValue(0), maxValue(100))}>
             {({ input, meta }) => (
               <div>
-                <FormLabel> Percent</FormLabel>
-                <InputGroup>
-               
+
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel"> Percent</FormLabel>
                 <FormControl {...input} disabled={values?.propertyManagementCalculationChoice !== "percent"} type="number" placeholder="Percent" />
                 <InputGroup.Text>%</InputGroup.Text>
                 </InputGroup>
@@ -541,13 +432,13 @@ const composeValidators = (...validators) => value =>
               </div>
             )}
           </Field>
-            </Col>
-            <Col>
+          
             <Field  name="propertyManagementDollarValue" validate={ propertyValues.propertyManagementCalculationChoice !== "percent" ? composeValidators(required, mustBeNumber, minValue(0), maxValue(100)) : null}>
             {({ input, meta }) => (
               <div>
-                <FormLabel>Dollar Value</FormLabel>
-                <InputGroup>
+
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Dollar Value</FormLabel>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl disabled={values?.propertyManagementCalculationChoice == "percent"} {...input} type="number" placeholder="Dollar Value" />
                 
@@ -556,14 +447,84 @@ const composeValidators = (...validators) => value =>
               </div>
             )}
           </Field>
+          </Col>
+            <Col lg={1}>
+            <ColumnDivider />
             </Col>
-            </Row>
-          <Row >
+            <Col lg={3}>
+            <Field name="vacancy" validate={composeValidators(required, mustBeNumber, minValue(0))}>
+            {({ input, meta }) => (
+              <>
+
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Vacancy Percent</FormLabel>
+                <FormControl {...input} type="number" placeholder="Vacancy" />
+                <InputGroup.Text>%</InputGroup.Text>
+                </InputGroup>
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
+              </>
+            )}
+          </Field>
+            <Field  name="capitalExpendituresCalculationChoice">
+            {({ input, meta }) => (
+              <> 
+              <Divider margin="1.5em" width="75%" />
+                 <Header text="Capital Expenditures" weight={400} size={1.2}/> 
+                 <Container>
+                 <FormCheck
+                 {...input}
+                  type="radio"
+                  label="Percent of Rent"
+                  name="capitalExpendituresChoice"
+                  value="percent"
+                  checked={values?.capitalExpendituresCalculationChoice === "percent"}
+                  inline
+                  />
+                  <FormCheck
+                  {...input}
+                  type="radio"
+                  label="Dollar Value"
+                  name="capitalExpendituresChoice"
+                  value="dollarValue"
+                  inline
+                  />
+                  </Container>
+              </>
+            )}
+            </Field>
+            <Field  name="capitalExpendituresPercent" validate={ propertyValues.capitalExpendituresCalculationChoice === "percent" ? composeValidators(required, mustBeNumber, minValue(0), maxValue(100)) : null}>
+            {({ input, meta }) => (
+              <div>
+
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel"> Percent</FormLabel>
+                <FormControl {...input} disabled={values?.capitalExpendituresCalculationChoice !== "percent"} type="number" placeholder="Percent" />
+                <InputGroup.Text>%</InputGroup.Text>
+                </InputGroup>
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
+              </div>
+            )}
+          </Field>
+
+            <Field  name="capitalExpendituresDollarValue" validate={ propertyValues.capitalExpendituresCalculationChoice !== "percent" ? composeValidators(required, mustBeNumber, minValue(0)) : null}>
+            {({ input, meta }) => (
+              <div>
+                
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Dollar Value</FormLabel>
+                <InputGroup.Text>$</InputGroup.Text>
+                <FormControl disabled={values?.capitalExpendituresCalculationChoice === "percent"} {...input} type="number" placeholder="Dollar Value" />
+               
+                </InputGroup>
+                {meta.error && meta.touched && <ErrorText message={meta.error}/>}
+              </div>
+            )}
+          </Field>
             <Field  name="maintenanceCalculationChoice">
             {({ input, meta }) => (
               <>
-              <Divider margin="1.5em" width="50%" />
-                 <Header text="Maintenance" weight={400} size={1.5}/> 
+              <Divider margin="1.5em" width="75%" />
+                 <Header text="Maintenance" weight={400} size={1.2}/> 
                  <Container>
                  <FormCheck
                  {...input}
@@ -586,16 +547,13 @@ const composeValidators = (...validators) => value =>
               </>
             )}
             </Field>
-            </Row>
-            <Spacer margin="0.5em" />
-            <Row>
-            <Col>
+
             <Field  name="maintenancePercent" validate={ propertyValues.maintenanceCalculationChoice === "percent" ? composeValidators(required, mustBeNumber, minValue(0), maxValue(100)) : null}>
             {({ input, meta }) => (
               <div>
-                <FormLabel> Percent</FormLabel>
-                <InputGroup>
-                
+
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel"> Percent</FormLabel>
                 <FormControl {...input} disabled={values?.maintenanceCalculationChoice !== "percent"} type="number" placeholder="Percent" />
                 <InputGroup.Text>%</InputGroup.Text>
                 </InputGroup>
@@ -603,13 +561,13 @@ const composeValidators = (...validators) => value =>
               </div>
             )}
           </Field>
-            </Col>
-            <Col>
+
             <Field  name="maintenanceDollarValue" validate={ propertyValues.maintenanceCalculationChoice !== "percent" ? composeValidators(required, mustBeNumber, minValue(0)) : null}>
             {({ input, meta }) => (
               <div>
-                <FormLabel>Dollar Value</FormLabel>
-                <InputGroup>
+
+                <InputGroup className="inputGroup">
+                <FormLabel className="formLabel">Dollar Value</FormLabel>
                 <InputGroup.Text>$</InputGroup.Text>
                 <FormControl disabled={values?.maintenanceCalculationChoice === "percent"} {...input} type="number" placeholder="Dollar Value" />
                
@@ -618,8 +576,10 @@ const composeValidators = (...validators) => value =>
               </div>
             )}
           </Field>
+
             </Col>
           </Row>
+          </Container>
           <Spacer margin="1em" />
          
             
@@ -631,8 +591,7 @@ const composeValidators = (...validators) => value =>
         </form>
       )}
     />
-    </Col>
-    <Col lg={8} className="AppHeightScroll">
+    {/* <Col lg={8} className="AppHeightScroll">
       <Container>
     <Row>
     <Header text="Cash Flow Analysis" weight={500} size={2}/>
@@ -670,7 +629,7 @@ const composeValidators = (...validators) => value =>
     </Row>
     </Row>
     </Container>
-    </Col>
+    </Col> */}
     </Row>
     </Container>
     </div>
