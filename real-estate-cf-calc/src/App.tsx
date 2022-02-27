@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import './App.css';
-import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import { Form, Field } from 'react-final-form';
@@ -13,6 +12,8 @@ import { ErrorText } from './Components/Text/ErrorText';
 import { TextField } from './Components/Form/TextField';
 import { Button } from '@mui/material';
 import Table from '@mui/material/Table';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
@@ -145,12 +146,10 @@ const composeValidators = (...validators) => value =>
   validators.reduce((error, validator) => error || validator(value), undefined)
 
   return (
-    <div className='AppHeight'>
+    <div>
     <Container>
       <Row>
           <Header text="Cash Flow Calculator" weight={500} size={2}/> 
-          
-
       <Form
       initialValues={
         {
@@ -165,6 +164,11 @@ const composeValidators = (...validators) => value =>
       render={({ handleSubmit, form, submitting, pristine, values }) => (
         <form onSubmit={handleSubmit}>
           <Container>
+            <Box sx={{
+              border: "solid 1px #bdbdbd",
+              borderRadius: "5px",
+              padding: "30px"
+      }}>
           <Row>
             <Col lg={3}>
             <Header color="#1976d2" text="Loan Details" weight={400} size={1.5}/> 
@@ -679,7 +683,6 @@ const composeValidators = (...validators) => value =>
 
             </Col>
           </Row>
-          </Container>
           <Spacer margin="1.5em" />
               <Container>
               <Row>
@@ -690,6 +693,8 @@ const composeValidators = (...validators) => value =>
               </Container>
            
             <Spacer margin="1em" />
+          </Box>
+          </Container>
           
         </form>
       )}
