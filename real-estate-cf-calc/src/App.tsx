@@ -20,6 +20,12 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
+
+interface Expense {
+  name: string;
+  monthlyValue: number;
+}
+
 function App() {
 
 
@@ -72,7 +78,7 @@ function App() {
       const principalAndInterest: number = mortgageLoanAmount*(interestConstant*Math.pow((1+interestConstant),360)/(Math.pow((1+interestConstant),360)-1));
       const vacancy: number = (propertyValues.vacancy/100)*propertyValues.rent;
       const fixedExpenses: number = principalAndInterest + propertyManagement + propertyValues.monthlyUtilities + propertyValues.hoa + propertyValues.taxes + propertyValues.insurance;
-      const totalMonthlyExpenses: number = principalAndInterest + vacancy + propertyManagement + capitalExpenditures + maintenance + propertyValues.monthlyUtilities + propertyValues.hoa + propertyValues.taxes + propertyValues.insurance;
+      const totalMonthlyExpenses: number = principalAndInterest + vacancy + propertyManagement + capitalExpenditures + maintenance + propertyValues.additionalMonthlyExpenses +propertyValues.monthlyUtilities + propertyValues.hoa + propertyValues.taxes + propertyValues.insurance;
       const cashFlow: number = propertyValues.rent - totalMonthlyExpenses;
       const profitAfterFixedExpenses: number = propertyValues.rent - fixedExpenses;
       setCashFlowValues({
@@ -92,18 +98,38 @@ function App() {
       })
   }
 
-  const createData = (name, calories, fat, carbs, protein) => {
-    return { name, calories, fat, carbs, protein };
+  const expenseData = () => {
+    const expenses: Expense[] = [
+      {name: "Principal & Interest", monthlyValue :cashFlowValues.principalAndInterest},
+      {name: "Home Insurance", monthlyValue :propertyValues.insurance} ,
+      {name: "Property Taxes",monthlyValue :propertyValues.taxes},
+      {name: "HOA Fee", monthlyValue :propertyValues.hoa},
+      {name: "Mortgage Insurance", monthlyValue :0},
+      {name: "Utilities", monthlyValue :propertyValues.monthlyUtilities},
+      {name: "Capital Expenditures", monthlyValue :cashFlowValues.capitalExpenditures},
+      {name: "Maintenance", monthlyValue :cashFlowValues.maintenance},
+      {name: "Vacancy", monthlyValue :cashFlowValues.vacancy},
+      {name: "Miscellaneous Expenses", monthlyValue : propertyValues.additionalMonthlyExpenses},
+    ]
+      let totalMonthlyCost = 0;
+      expenses.forEach(expense => totalMonthlyCost += expense.monthlyValue)
+      expenses.push({
+        name: "Total",
+        monthlyValue: totalMonthlyCost,
+      })
+
+    return expenses.map(expense => {
+      return {
+      "name": expense.name,
+      "monthlyCost": Math.round(expense.monthlyValue),
+      "annualCost": Math.round(expense.monthlyValue*12)
+    }
+  }
+    )
+
+    
   }
 
-  const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-    createData('Cupcake', 305, 3.7, 67, 4.3),
-    createData('Gingerbread', 356, 16.0, 49, 3.9),
-  ];
-  
 const onSubmit = async values => {
   setPropertyValues(values);
   calculateMortgagePayment(values);
@@ -199,7 +225,7 @@ const composeValidators = (...validators) => value =>
             <Field name="downPaymentCalculationChoice">
             {({ input, meta }) => (
               <>
-                 <Header color="#1976d2" text="Down Payment" weight={400} size={1.2}/> 
+                 <Header color="#1976d2" text="Down Payment" weight={400} size={1.1}/> 
                  <Container>
                  <FormCheck
                  {...input}
@@ -264,7 +290,7 @@ const composeValidators = (...validators) => value =>
             {({ input, meta }) => (
               <>
                 <Divider margin="1.8em" width="75%" />
-                 <Header color="#1976d2" text="Closing Costs" weight={400} size={1.2}/> 
+                 <Header color="#1976d2" text="Closing Costs" weight={400} size={1.1}/> 
                  <Container>
                  <FormCheck
                  {...input}
@@ -433,7 +459,7 @@ const composeValidators = (...validators) => value =>
               <>
               <Divider margin="1.8em" width="75%" />
                  
-                 <Header color="#1976d2" text="Property Management" weight={400} size={1.2}/> 
+                 <Header color="#1976d2" text="Property Management" weight={400} size={1.1}/> 
                  <Container>
                  <FormCheck
                  {...input}
@@ -523,7 +549,7 @@ const composeValidators = (...validators) => value =>
             {({ input, meta }) => (
               <> 
               <Divider margin="1.8em" width="75%" />
-                 <Header color="#1976d2" text="Capital Expenditures" weight={400} size={1.2}/> 
+                 <Header color="#1976d2" text="Capital Expenditures" weight={400} size={1.1}/> 
                  <Container>
                  <FormCheck
                  {...input}
@@ -588,7 +614,7 @@ const composeValidators = (...validators) => value =>
             {({ input, meta }) => (
               <>
               <Divider margin="1.8em" width="75%" />
-                 <Header color="#1976d2" text="Maintenance" weight={400} size={1.2}/> 
+                 <Header color="#1976d2" text="Maintenance" weight={400} size={1.1}/> 
                  <Container>
                  <FormCheck
                  {...input}
@@ -672,20 +698,17 @@ const composeValidators = (...validators) => value =>
       <Container>
     <Row>
     <Header text="Cash Flow Analysis" weight={500} size={2}/>
-      <Header text="Monthly Expenses" weight={400} size={1.5}></Header>
       <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>Dessert (100g serving)</TableCell>
-            <TableCell align="right">Calories</TableCell>
-            <TableCell align="right">Fat&nbsp;(g)</TableCell>
-            <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-            <TableCell align="right">Protein&nbsp;(g)</TableCell>
+            <TableCell>Expense</TableCell>
+            <TableCell align="right">Monthly Cost ($)</TableCell>
+            <TableCell align="right">Annual Cost ($)</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
+          {expenseData().filter(expense => expense.name !="Total").map((row) => (
             <TableRow
               key={row.name}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -693,28 +716,39 @@ const composeValidators = (...validators) => value =>
               <TableCell component="th" scope="row">
                 {row.name}
               </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
-              <TableCell align="right">{row.protein}</TableCell>
+              <TableCell align="right">{row.monthlyCost}</TableCell>
+              <TableCell align="right">{row.annualCost}</TableCell>
             </TableRow>
           ))}
+          {expenseData().filter(expense => expense.name == "Total").map((row) => (
+                      <TableRow key={row.name} sx={{borderTop: "solid 2px black"}}>
+          
+                      <TableCell component="th" scope="row">
+                        Total Expenses
+                      </TableCell>
+                      <TableCell align="right">{row.monthlyCost}</TableCell>
+                      <TableCell align="right">{row.annualCost}</TableCell>
+                    </TableRow>
+          ))}
+          <TableRow key="rent">
+          
+          <TableCell component="th" scope="row">
+            Rent
+          </TableCell>
+          <TableCell align="right">{Math.round(propertyValues.rent)}</TableCell>
+          <TableCell align="right">{Math.round(propertyValues.rent*12)}</TableCell>
+        </TableRow>
+        <TableRow key="cashFlow" sx={{borderTop: "solid 2px black"}}>
+          
+          <TableCell component="th" scope="row">
+            Cash Flow
+          </TableCell>
+          <TableCell align="right">{Math.round(cashFlowValues.cashFlow)}</TableCell>
+          <TableCell align="right">{Math.round(cashFlowValues.cashFlow*12)}</TableCell>
+        </TableRow>
         </TableBody>
       </Table>
     </TableContainer>
-        <p>Principal &amp; Interest: $ {cashFlowValues.principalAndInterest}</p>
-        <p>Home Insurance: $ {propertyValues.insurance}</p>
-        <p>Property Taxes: $ {propertyValues.taxes}</p>
-        <p>HOA Fee: $ {propertyValues.hoa}</p>
-        <p>Mortgage Insurance: $ 0</p>
-        <p>Utilities: $ {propertyValues.monthlyUtilities}</p>
-        <p>Capital Expenditures: $ {cashFlowValues.capitalExpenditures}</p>
-        <p>Maintenance: $ {cashFlowValues.maintenance}</p>
-        <p>Vacancy: $ {cashFlowValues.vacancy}</p>
-        <p>Profit after Fixed Expenses: $ {cashFlowValues.profitAfterFixedExpenses}</p>
-        <p>Cash Flow: $ {cashFlowValues.cashFlow}</p>
-      <Row>
-      </Row>
     </Row>
     
     </Container>
