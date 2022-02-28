@@ -70,6 +70,8 @@ function App() {
       pmi:0,
       capRate: 0
     });
+  
+    const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
 
   const calculateMortgagePayment = (propertyValues) => {
       const downPayment: number = propertyValues.downPaymentCalculationChoice === 'percent' ? ((propertyValues.downPaymentPercent)/100)*propertyValues.purchasePrice : propertyValues.downPaymentDollarValue;
@@ -172,11 +174,12 @@ const minValue = min => value =>
 const composeValidators = (...validators) => value =>
   validators.reduce((error, validator) => error || validator(value), undefined)
 
+  if(screenWidth) // stbox thinf
   return (
     <div>
     <Container>
       <Row>
-          <Header text="Cash Flow Calculator" weight={500} size={2}/> 
+          <Header text="Rental Property Cash Flow Calculator" weight={400} size={2}/> 
       <Form
       initialValues={
         {
@@ -745,9 +748,10 @@ const composeValidators = (...validators) => value =>
     />
     
       <Container>
-      <Spacer margin="1.5em" />
+
     <Row>
       <Col lg={6}>
+      <Spacer margin="1.5em" />
     <Header text="Cash Flow Analysis" weight={400} size={2} color="#1976d2"/>
       <TableContainer component={Paper}>
       <Table sx={{ minWidth: 150 }} aria-label="simple table">
@@ -801,6 +805,7 @@ const composeValidators = (...validators) => value =>
     </TableContainer>
     </Col>
     <Col lg={6}>
+    <Spacer margin="1.5em" />
     <Header text="Property Analysis" weight={400} size={2} color="#1976d2"/>
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 150 }} aria-label="simple table">
