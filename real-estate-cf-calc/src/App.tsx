@@ -5,8 +5,6 @@ import Row from 'react-bootstrap/Row';
 import { Form, Field } from 'react-final-form';
 import { FormCheck } from 'react-bootstrap';
 import { Header } from './Components/Text/Header';
-import { Divider } from './Components/Layout/Divider';
-import { ColumnDivider } from './Components/Layout/ColumnDivider';
 import { Spacer } from './Components/Layout/Spacer';
 import { ErrorText } from './Components/Text/ErrorText';
 import { TextField } from './Components/Form/TextField';
@@ -64,8 +62,13 @@ function App() {
       closingCosts:0,
       maintenance:0,
       fixedExpenses: 0,
-      profitAfterFixedExpenses: 0,
-      propertyManagement:0
+      propertyManagement:0,
+      netOperatingExpenses:0,
+      requiredStartingCapital: 0,
+      cashOnCashReturn: 0,
+      netOperatingIncome: 0,
+      pmi:0,
+      capRate: 0
     });
 
   const calculateMortgagePayment = (propertyValues) => {
@@ -74,50 +77,76 @@ function App() {
       const propertyManagement: number = propertyValues.propertyManagementCalculationChoice === 'percent' ? ((propertyValues.propertyManagementPercent)/100)*propertyValues.rent : propertyValues.propertyManagementDollarValue;
       const capitalExpenditures: number = propertyValues.capitalExpendituresCalculationChoice === 'percent' ? ((propertyValues.capitalExpendituresPercent)/100)*propertyValues.rent : propertyValues.capitalExpendituresDollarValue;
       const maintenance: number = propertyValues.maintenanceCalculationChoice === 'percent' ? ((propertyValues.maintenancePercent)/100)*propertyValues.rent : propertyValues.maintenanceDollarValue;
-      const interestConstant: number = ((propertyValues.interestRate/100)/12);
-      const mortgageLoanAmount: number = propertyValues.purchasePrice - downPayment;
+      const interestConstant: number = ((Number(propertyValues.interestRate)/100)/12);
+      const mortgageLoanAmount: number = Number(propertyValues.purchasePrice) - downPayment;
       const principalAndInterest: number = mortgageLoanAmount*(interestConstant*Math.pow((1+interestConstant),360)/(Math.pow((1+interestConstant),360)-1));
       const vacancy: number = (propertyValues.vacancy/100)*propertyValues.rent;
-      const fixedExpenses: number = principalAndInterest + propertyManagement + propertyValues.monthlyUtilities + propertyValues.hoa + propertyValues.taxes + propertyValues.insurance;
-      const totalMonthlyExpenses: number = principalAndInterest + vacancy + propertyManagement + capitalExpenditures + maintenance + propertyValues.additionalMonthlyExpenses +propertyValues.monthlyUtilities + propertyValues.hoa + propertyValues.taxes + propertyValues.insurance;
-      const cashFlow: number = propertyValues.rent - totalMonthlyExpenses;
-      const profitAfterFixedExpenses: number = propertyValues.rent - fixedExpenses;
+      const fixedExpenses: number = principalAndInterest + propertyManagement + Number(propertyValues.monthlyUtilities) + Number(propertyValues.hoa) + Number(propertyValues.taxes) + Number(propertyValues.insurance);
+      const totalMonthlyExpenses: number = principalAndInterest + vacancy + propertyManagement + capitalExpenditures + maintenance + Number(propertyValues.additionalMonthlyExpenses) + Number(propertyValues.monthlyUtilities) + Number(propertyValues.hoa) + Number(propertyValues.taxes) + Number(propertyValues.insurance);
+      const netOperatingExpenses: number = vacancy + propertyManagement + maintenance + Number(propertyValues.additionalMonthlyExpenses) + Number(propertyValues.monthlyUtilities) + Number(propertyValues.hoa) + Number(propertyValues.taxes) + Number(propertyValues.insurance);
+      const netOperatingIncome: number = Number(propertyValues.rent) - netOperatingExpenses;
+      const cashFlow: number = Number(propertyValues.rent) - totalMonthlyExpenses;
+      const requiredStartingCapital: number = closingCosts + downPayment;
+      console.log(vacancy , propertyManagement , capitalExpenditures,maintenance , propertyValues.additionalMonthlyExpenses, propertyValues.monthlyUtilities , propertyValues.hoa , propertyValues.taxes , propertyValues.insurance,fixedExpenses, totalMonthlyExpenses, netOperatingExpenses, netOperatingIncome, cashFlow, requiredStartingCapital);
+
+      let capRate: number = 0;
+      if(propertyValues.purchasePrice > 0){
+        capRate = (netOperatingIncome*12 / propertyValues.purchasePrice)*100;
+      }
+
+      let pmi: number = 0
+      if (propertyValues.purchasePrice > 0){
+        if (((mortgageLoanAmount/propertyValues.purchasePrice)) > 0.8){
+          const annualPmi = ((1.235)/100)*mortgageLoanAmount;
+          pmi = annualPmi/12;
+        }
+      }
+      let startingCapital = 1;
+      if (requiredStartingCapital > 0){
+        startingCapital = requiredStartingCapital;
+      }
+      const cashOnCashReturn = (netOperatingIncome*12 / startingCapital)*100;
       setCashFlowValues({
-        downPayment: downPayment,
-        interestConstant: interestConstant,
-        mortgageLoanAmount: mortgageLoanAmount,
-        principalAndInterest: principalAndInterest,
-        capitalExpenditures: capitalExpenditures,
-        vacancy: vacancy,
-        totalMonthlyExpenses:totalMonthlyExpenses,
-        cashFlow: cashFlow,
-        fixedExpenses: fixedExpenses,
-        closingCosts: closingCosts,
-        maintenance: maintenance,
-        profitAfterFixedExpenses: profitAfterFixedExpenses,
-        propertyManagement:propertyManagement
+        downPayment,
+        interestConstant,
+        mortgageLoanAmount,
+        principalAndInterest,
+        capitalExpenditures,
+        vacancy,
+        totalMonthlyExpenses,
+        cashFlow,
+        fixedExpenses,
+        closingCosts,
+        maintenance,
+        propertyManagement,
+        netOperatingExpenses,
+        requiredStartingCapital,
+        cashOnCashReturn,
+        netOperatingIncome,
+        pmi,
+        capRate
       })
   }
 
+  const roiData = () => [
+      {name: "Net Operating Income", value: cashFlowValues.netOperatingIncome, label:"$"},
+      {name: "Starting Capital Required", value: cashFlowValues.requiredStartingCapital, label: "$"},
+      {name: "Cash on Cash Return", value: cashFlowValues.cashOnCashReturn, label: "%"},
+      {name:"CAP Rate", value: cashFlowValues.capRate, label:"%"}
+    ]
   const expenseData = () => {
     const expenses: Expense[] = [
       {name: "Principal & Interest", monthlyValue :cashFlowValues.principalAndInterest},
+      {name: "Pmi", monthlyValue :cashFlowValues.pmi},
       {name: "Home Insurance", monthlyValue :propertyValues.insurance} ,
       {name: "Property Taxes",monthlyValue :propertyValues.taxes},
       {name: "HOA Fee", monthlyValue :propertyValues.hoa},
-      {name: "Mortgage Insurance", monthlyValue :0},
       {name: "Utilities", monthlyValue :propertyValues.monthlyUtilities},
       {name: "Capital Expenditures", monthlyValue :cashFlowValues.capitalExpenditures},
       {name: "Maintenance", monthlyValue :cashFlowValues.maintenance},
       {name: "Vacancy", monthlyValue :cashFlowValues.vacancy},
       {name: "Miscellaneous Expenses", monthlyValue : propertyValues.additionalMonthlyExpenses},
     ]
-      let totalMonthlyCost = 0;
-      expenses.forEach(expense => totalMonthlyCost += expense.monthlyValue)
-      expenses.push({
-        name: "Total",
-        monthlyValue: totalMonthlyCost,
-      })
 
     return expenses.map(expense => {
       return {
@@ -127,8 +156,6 @@ function App() {
     }
   }
     )
-
-    
   }
 
 const onSubmit = async values => {
@@ -170,7 +197,12 @@ const composeValidators = (...validators) => value =>
               padding: "30px"
       }}>
           <Row>
-            <Col lg={3}>
+            <Col lg={4}>
+              <Box sx={{
+              borderRight: "solid 1px #1976d2",
+              borderRadius: "1px",
+      }}>
+            <Container>
             <Header color="#1976d2" text="Loan Details" weight={400} size={1.5}/> 
             <Field name="purchasePrice" validate={composeValidators(required, mustBeNumber, minValue(0))}>
             {({ input, meta }) => (
@@ -225,11 +257,12 @@ const composeValidators = (...validators) => value =>
             )}
           </Field>
           
-          <Divider margin="1.8em" width="75%" />
+          <Spacer margin="1em"/>
             <Field name="downPaymentCalculationChoice">
             {({ input, meta }) => (
               <>
                  <Header color="#1976d2" text="Down Payment" weight={400} size={1.1}/> 
+                 <Spacer margin="1em"/>
                  <Container>
                  <FormCheck
                  {...input}
@@ -293,8 +326,9 @@ const composeValidators = (...validators) => value =>
           <Field  name="closingCostCalculationChoice">
             {({ input, meta }) => (
               <>
-                <Divider margin="1.8em" width="75%" />
+                <Spacer margin="1em"/>
                  <Header color="#1976d2" text="Closing Costs" weight={400} size={1.1}/> 
+                 <Spacer margin="1em"/>
                  <Container>
                  <FormCheck
                  {...input}
@@ -353,11 +387,15 @@ const composeValidators = (...validators) => value =>
               </div>
             )}
           </Field>
+          </Container>
+          </Box>
           </Col>
-          <Col lg={1}>
-          <ColumnDivider />
-          </Col>
-          <Col lg={3}>
+          <Col lg={4}>
+          <Box sx={{
+              borderRight: "solid 1px #1976d2",
+              borderRadius: "1px",
+      }}>
+            <Container>
           <Header color="#1976d2" text="Monthly Income and Expenses" weight={400} size={1.5}/> 
             
             <Field name="rent" validate={composeValidators(required, mustBeNumber, minValue(0))}>
@@ -461,9 +499,10 @@ const composeValidators = (...validators) => value =>
           <Field  name="propertyManagementCalculationChoice">
             {({ input, meta }) => (
               <>
-              <Divider margin="1.8em" width="75%" />
+              <Spacer margin="1em"/>
                  
                  <Header color="#1976d2" text="Property Management" weight={400} size={1.1}/> 
+                 <Spacer margin="1em"/>
                  <Container>
                  <FormCheck
                  {...input}
@@ -525,11 +564,13 @@ const composeValidators = (...validators) => value =>
               </div>
             )}
           </Field>
+          </Container>
+          </Box>
           </Col>
-            <Col lg={1}>
-            <ColumnDivider />
-            </Col>
-            <Col lg={3}>
+
+            <Col lg={4}>
+              <Box>
+                <Container>
             <Header color="#1976d2" text="Estimated Expenses" weight={400} size={1.5}/> 
             <Field name="vacancy" validate={composeValidators(required, mustBeNumber, minValue(0))}>
             {({ input, meta }) => (
@@ -552,8 +593,9 @@ const composeValidators = (...validators) => value =>
             <Field  name="capitalExpendituresCalculationChoice">
             {({ input, meta }) => (
               <> 
-              <Divider margin="1.8em" width="75%" />
+              <Spacer margin="1em"/>
                  <Header color="#1976d2" text="Capital Expenditures" weight={400} size={1.1}/> 
+                 <Spacer margin="1em"/>
                  <Container>
                  <FormCheck
                  {...input}
@@ -617,8 +659,9 @@ const composeValidators = (...validators) => value =>
             <Field  name="maintenanceCalculationChoice">
             {({ input, meta }) => (
               <>
-              <Divider margin="1.8em" width="75%" />
+              <Spacer margin="1em"/>
                  <Header color="#1976d2" text="Maintenance" weight={400} size={1.1}/> 
+                 <Spacer margin="1em"/>
                  <Container>
                  <FormCheck
                  {...input}
@@ -680,7 +723,8 @@ const composeValidators = (...validators) => value =>
               </div>
             )}
           </Field>
-
+            </Container>
+            </Box>
             </Col>
           </Row>
           <Spacer margin="1.5em" />
@@ -701,15 +745,17 @@ const composeValidators = (...validators) => value =>
     />
     
       <Container>
+      <Spacer margin="1.5em" />
     <Row>
-    <Header text="Cash Flow Analysis" weight={500} size={2}/>
+      <Col lg={6}>
+    <Header text="Cash Flow Analysis" weight={400} size={2} color="#1976d2"/>
       <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+      <Table sx={{ minWidth: 150 }} aria-label="simple table">
         <TableHead>
           <TableRow>
             <TableCell>Expense</TableCell>
-            <TableCell align="right">Monthly Cost ($)</TableCell>
-            <TableCell align="right">Annual Cost ($)</TableCell>
+            <TableCell align="right">Monthly Value ($)</TableCell>
+            <TableCell align="right">Annual Value ($)</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -725,16 +771,15 @@ const composeValidators = (...validators) => value =>
               <TableCell align="right">{row.annualCost}</TableCell>
             </TableRow>
           ))}
-          {expenseData().filter(expense => expense.name == "Total").map((row) => (
-                      <TableRow key={row.name} sx={{borderTop: "solid 2px black"}}>
+          
+                      <TableRow key="totalMonthly" sx={{borderTop: "solid 2px black"}}>
           
                       <TableCell component="th" scope="row">
                         Total Expenses
                       </TableCell>
-                      <TableCell align="right">{row.monthlyCost}</TableCell>
-                      <TableCell align="right">{row.annualCost}</TableCell>
+                      <TableCell align="right">{Math.round(cashFlowValues.totalMonthlyExpenses)}</TableCell>
+                      <TableCell align="right">{Math.round(cashFlowValues.totalMonthlyExpenses*12)}</TableCell>
                     </TableRow>
-          ))}
           <TableRow key="rent">
           
           <TableCell component="th" scope="row">
@@ -754,10 +799,38 @@ const composeValidators = (...validators) => value =>
         </TableBody>
       </Table>
     </TableContainer>
+    </Col>
+    <Col lg={6}>
+    <Header text="Property Analysis" weight={400} size={2} color="#1976d2"/>
+    <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 150 }} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell>Calculation</TableCell>
+            <TableCell align="right">Amount</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {roiData().map((row) => (
+            <TableRow
+              key={row.name}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+              <TableCell component="th" scope="row">
+                {row.name}
+              </TableCell>
+              <TableCell align="right">{row.label === "$" ? "$ " : null} { row.label === "%" ? row.value.toFixed(2) : row.value} {row.label === "%" ? " %" : null}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+    </Col>
     </Row>
     
     </Container>
     </Row>
+    <Spacer margin="1.5em" />
     </Container>
     </div>
   );
