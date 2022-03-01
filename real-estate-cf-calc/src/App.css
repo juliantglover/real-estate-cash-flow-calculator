@@ -1,27 +1,26 @@
-body, html {
-  font-family: 'Roboto', sans-serif;
+body,
+html {
+  font-family: "Roboto", sans-serif;
 }
 
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    margin: 0; 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0;
 }
 
-.inputGroup{
-
+.inputGroup {
   margin-top: 20px;
   margin-bottom: 20px;
 }
 
-.formLabel{
+.formLabel {
   width: 50%;
   margin-top: auto;
   margin-bottom: auto;
 }
-
 
 .App-logo {
   height: 40vmin;
