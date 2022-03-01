@@ -6,6 +6,10 @@
 
 .errorMessage {
     font-weight: 500;
-    color: red;
+    color:#d32f2f;
     font-size: 0.85em;
+}
+
+.boldText{
+    font-weight: 500;
 }

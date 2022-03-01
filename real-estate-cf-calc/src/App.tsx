@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState , useRef} from 'react';
 import './App.css';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -18,8 +18,6 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-
-
 interface Expense {
   name: string;
   monthlyValue: number;
@@ -27,6 +25,7 @@ interface Expense {
 
 function App() {
 
+const scrollRef = useRef(null);
 
   const [propertyValues, setPropertyValues] = useState(
     { 
@@ -73,6 +72,8 @@ function App() {
   
     const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
 
+    const formatCurrency = (numberValue: number) => Math.round(numberValue).toLocaleString("en-US");
+    
   const calculateMortgagePayment = (propertyValues) => {
       const downPayment: number = propertyValues.downPaymentCalculationChoice === 'percent' ? ((propertyValues.downPaymentPercent)/100)*propertyValues.purchasePrice : propertyValues.downPaymentDollarValue;
       const closingCosts: number = propertyValues.closingCostCalculationChoice === 'percent' ? ((propertyValues.closingCostPercent)/100)*propertyValues.purchasePrice : propertyValues.closingCostDollarValue;
@@ -131,10 +132,10 @@ function App() {
   }
 
   const roiData = () => [
-      {name: "Net Operating Income", value: cashFlowValues.netOperatingIncome, label:"$"},
-      {name: "Starting Capital Required", value: cashFlowValues.requiredStartingCapital, label: "$"},
-      {name: "Cash on Cash Return", value: cashFlowValues.cashOnCashReturn, label: "%"},
-      {name:"CAP Rate", value: cashFlowValues.capRate, label:"%"}
+    {name: "Starting Capital Required", value: cashFlowValues.requiredStartingCapital, label: "$", bold:false},
+      {name: "Net Operating Income", value: cashFlowValues.netOperatingIncome, label:"$", bold:true},
+      {name: "Cash on Cash Return", value: cashFlowValues.cashOnCashReturn, label: "%", bold:true},
+      {name:"CAP Rate", value: cashFlowValues.capRate, label:"%", bold:true}
     ]
   const expenseData = () => {
     const expenses: Expense[] = [
@@ -161,6 +162,7 @@ function App() {
   }
 
 const onSubmit = async values => {
+  window.scrollTo(0, scrollRef.current.offsetTop);
   setPropertyValues(values);
   calculateMortgagePayment(values);
 }
@@ -174,7 +176,14 @@ const minValue = min => value =>
 const composeValidators = (...validators) => value =>
   validators.reduce((error, validator) => error || validator(value), undefined)
 
-  if(screenWidth) // stbox thinf
+  let boxBorder = {}
+  if(screenWidth > 1000) {
+    boxBorder = {
+      borderRight: "solid 1px #1976d2",
+      borderRadius: "5px",
+      padding: "10px"
+}
+  }
   return (
     <div>
     <Container>
@@ -201,10 +210,7 @@ const composeValidators = (...validators) => value =>
       }}>
           <Row>
             <Col lg={4}>
-              <Box sx={{
-              borderRight: "solid 1px #1976d2",
-              borderRadius: "1px",
-      }}>
+              <Box sx={boxBorder}>
             <Container>
             <Header color="#1976d2" text="Loan Details" weight={400} size={1.5}/> 
             <Field name="purchasePrice" validate={composeValidators(required, mustBeNumber, minValue(0))}>
@@ -300,7 +306,7 @@ const composeValidators = (...validators) => value =>
                 hasAdornment
                 adornmentPosition = "end"
                 adornment = "%"
-                label="Down Payment Percent"
+                label="Percent"
                 disabled={values?.downPaymentCalculationChoice !== "percent"}
                 meta={meta}
                 />
@@ -364,7 +370,7 @@ const composeValidators = (...validators) => value =>
                 hasAdornment
                 adornmentPosition = "end"
                 adornment = "%"
-                label="Closing Cost Percent"
+                label="Percent"
                 disabled={values?.closingCostCalculationChoice !== "percent"}
                 meta={meta}
                 />
@@ -394,10 +400,7 @@ const composeValidators = (...validators) => value =>
           </Box>
           </Col>
           <Col lg={4}>
-          <Box sx={{
-              borderRight: "solid 1px #1976d2",
-              borderRadius: "1px",
-      }}>
+          <Box sx={boxBorder}>
             <Container>
           <Header color="#1976d2" text="Monthly Income and Expenses" weight={400} size={1.5}/> 
             
@@ -753,6 +756,7 @@ const composeValidators = (...validators) => value =>
       <Col lg={6}>
       <Spacer margin="1.5em" />
     <Header text="Cash Flow Analysis" weight={400} size={2} color="#1976d2"/>
+    <span ref={scrollRef}/>
       <TableContainer component={Paper}>
       <Table sx={{ minWidth: 150 }} aria-label="simple table">
         <TableHead>
@@ -771,8 +775,8 @@ const composeValidators = (...validators) => value =>
               <TableCell component="th" scope="row">
                 {row.name}
               </TableCell>
-              <TableCell align="right">{row.monthlyCost}</TableCell>
-              <TableCell align="right">{row.annualCost}</TableCell>
+              <TableCell align="right">{formatCurrency(row.monthlyCost)}</TableCell>
+              <TableCell align="right">{formatCurrency(row.annualCost)}</TableCell>
             </TableRow>
           ))}
           
@@ -781,24 +785,24 @@ const composeValidators = (...validators) => value =>
                       <TableCell component="th" scope="row">
                         Total Expenses
                       </TableCell>
-                      <TableCell align="right">{Math.round(cashFlowValues.totalMonthlyExpenses)}</TableCell>
-                      <TableCell align="right">{Math.round(cashFlowValues.totalMonthlyExpenses*12)}</TableCell>
+                      <TableCell align="right">{formatCurrency(cashFlowValues.totalMonthlyExpenses)}</TableCell>
+                      <TableCell align="right">{formatCurrency(cashFlowValues.totalMonthlyExpenses*12)}</TableCell>
                     </TableRow>
           <TableRow key="rent">
           
           <TableCell component="th" scope="row">
-            Rent
+          <span style={{fontWeight:500}}>Rent</span>
           </TableCell>
-          <TableCell align="right">{Math.round(propertyValues.rent)}</TableCell>
-          <TableCell align="right">{Math.round(propertyValues.rent*12)}</TableCell>
+          <TableCell align="right"><span style={{fontWeight:500}}>{formatCurrency(propertyValues.rent)}</span></TableCell>
+          <TableCell align="right"><span style={{fontWeight:500}}>{formatCurrency(propertyValues.rent*12)}</span></TableCell>
         </TableRow>
         <TableRow key="cashFlow" sx={{borderTop: "solid 2px black"}}>
           
           <TableCell component="th" scope="row">
-            Cash Flow
+          <span style={{fontWeight:500}}>Cash Flow</span>
           </TableCell>
-          <TableCell align="right">{Math.round(cashFlowValues.cashFlow)}</TableCell>
-          <TableCell align="right">{Math.round(cashFlowValues.cashFlow*12)}</TableCell>
+          <TableCell align="right"><span style={{fontWeight:500}}>{formatCurrency(cashFlowValues.cashFlow)}</span></TableCell>
+          <TableCell align="right"><span style={{fontWeight:500}}>{formatCurrency(cashFlowValues.cashFlow*12)}</span></TableCell>
         </TableRow>
         </TableBody>
       </Table>
@@ -812,21 +816,49 @@ const composeValidators = (...validators) => value =>
         <TableHead>
           <TableRow>
             <TableCell>Calculation</TableCell>
-            <TableCell align="right">Amount</TableCell>
+            <TableCell align="right">Value</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {roiData().map((row) => (
+          {roiData().map((row) => { 
+            let value; 
+            let element;
+            let rowName;
+            if( row.label == "%" ){
+              value = row.value.toFixed(2);
+            } else {
+              value = formatCurrency(row.value);
+            }
+            element = value;
+            if(row.bold){
+              element = <span style={{fontWeight:500}}>{value}</span>
+              rowName = <span style={{fontWeight:500}}>{row.name}</span>
+            } else {
+              rowName = row.name;
+            }
+            return (
             <TableRow
               key={row.name}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
               <TableCell component="th" scope="row">
-                {row.name}
+                {rowName}
               </TableCell>
-              <TableCell align="right">{row.label === "$" ? "$ " : null} { row.label === "%" ? row.value.toFixed(2) : row.value} {row.label === "%" ? " %" : null}</TableCell>
+              <TableCell align="right">{row.label === "$" ? "$ " : null} {element} {row.label === "%" ? " %" : null}</TableCell>
             </TableRow>
-          ))}
+          )})}
+          <TableRow>
+            <TableCell component="th" scope="row">
+            <span style={{fontWeight:500}}>Cash Flow (per Month)</span>
+          </TableCell>
+          <TableCell align="right"><span style={{fontWeight:500}}>$ {formatCurrency(cashFlowValues.cashFlow)}</span></TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell component="th" scope="row">
+            <span style={{fontWeight:500}}>Cash Flow (per Year)</span>
+          </TableCell>
+          <TableCell align="right"><span style={{fontWeight:500}}>$ {formatCurrency(cashFlowValues.cashFlow*12)}</span></TableCell>
+          </TableRow>
         </TableBody>
       </Table>
     </TableContainer>
