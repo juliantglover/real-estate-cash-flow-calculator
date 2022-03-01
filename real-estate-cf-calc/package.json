@@ -2,7 +2,7 @@
   "name": "real-estate-cf-calc",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://juliantglover.github.io/real-estate-investment-deal-calculator/",
+  "homepage": "https://juliantglover.github.io/real-estate-cash-flow-calculator/",
   "dependencies": {
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
