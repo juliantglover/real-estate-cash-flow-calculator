@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./App.css";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
@@ -26,6 +26,14 @@ interface Expense {
 function App() {
   const scrollRef = useRef(null);
 
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+}
+  )
+
+  const handleResize = () => {
+    setScreenWidth(window.innerWidth)
+  }
   const [propertyValues, setPropertyValues] = useState({
     purchasePrice: 0,
     rent: 0,
@@ -135,23 +143,6 @@ function App() {
       Number(propertyValues.rent) - netOperatingExpenses;
     const cashFlow: number = Number(propertyValues.rent) - totalMonthlyExpenses;
     const requiredStartingCapital: number = closingCosts + downPayment;
-    console.log(
-      vacancy,
-      propertyManagement,
-      capitalExpenditures,
-      maintenance,
-      propertyValues.additionalMonthlyExpenses,
-      propertyValues.monthlyUtilities,
-      propertyValues.hoa,
-      propertyValues.taxes,
-      propertyValues.insurance,
-      fixedExpenses,
-      totalMonthlyExpenses,
-      netOperatingExpenses,
-      netOperatingIncome,
-      cashFlow,
-      requiredStartingCapital
-    );
 
     let capRate: number = 0;
     if (propertyValues.purchasePrice > 0) {
@@ -274,6 +265,7 @@ function App() {
       borderRight: "solid 1px #1976d2",
       borderRadius: "5px",
       padding: "10px",
+      height: "100%"
     };
   }
   return (
