@@ -142,7 +142,7 @@ function App() {
     const netOperatingIncome: number =
       Number(propertyValues.rent) - netOperatingExpenses;
     const cashFlow: number = Number(propertyValues.rent) - totalMonthlyExpenses;
-    const requiredStartingCapital: number = closingCosts + downPayment;
+    const requiredStartingCapital: number = Number(closingCosts) + Number(downPayment);
 
     let capRate: number = 0;
     if (propertyValues.purchasePrice > 0) {
@@ -190,7 +190,7 @@ function App() {
       name: "Starting Capital Required",
       value: cashFlowValues.requiredStartingCapital,
       label: "$",
-      bold: false,
+      bold: true,
     },
     {
       name: "Net Operating Income",
@@ -263,7 +263,7 @@ function App() {
   if (screenWidth > 1000) {
     boxBorder = {
       borderRight: "solid 1px #1976d2",
-      borderRadius: "5px",
+      borderRadius: "2px",
       padding: "10px",
       height: "100%"
     };
@@ -527,7 +527,7 @@ function App() {
                             <Field
                               name="closingCostPercent"
                               validate={
-                                propertyValues.closingCostCalculationChoice ===
+                                values?.closingCostCalculationChoice ===
                                 "percent"
                                   ? composeValidators(
                                       required,
@@ -563,7 +563,7 @@ function App() {
                             <Field
                               name="closingCostDollarValue"
                               validate={
-                                propertyValues.closingCostCalculationChoice !==
+                                values?.closingCostCalculationChoice !==
                                 "percent"
                                   ? composeValidators(
                                       required,
@@ -792,12 +792,12 @@ function App() {
 
                             <Field
                               name="propertyManagementPercent"
-                              validate={composeValidators(
+                              validate={values?.propertyManagementCalculationChoice ===
+                                "percent" ? composeValidators(
                                 required,
                                 mustBeNumber,
                                 minValue(0),
-                                maxValue(100)
-                              )}
+                                ): null}
                             >
                               {({ input, meta }) => (
                                 <div>
@@ -825,7 +825,7 @@ function App() {
                             <Field
                               name="propertyManagementDollarValue"
                               validate={
-                                propertyValues.propertyManagementCalculationChoice !==
+                                values?.propertyManagementCalculationChoice !==
                                 "percent"
                                   ? composeValidators(
                                       required,
@@ -934,7 +934,7 @@ function App() {
                             <Field
                               name="capitalExpendituresPercent"
                               validate={
-                                propertyValues.capitalExpendituresCalculationChoice ===
+                                values?.capitalExpendituresCalculationChoice ===
                                 "percent"
                                   ? composeValidators(
                                       required,
@@ -971,7 +971,7 @@ function App() {
                             <Field
                               name="capitalExpendituresDollarValue"
                               validate={
-                                propertyValues.capitalExpendituresCalculationChoice !==
+                                values?.capitalExpendituresCalculationChoice !==
                                 "percent"
                                   ? composeValidators(
                                       required,
@@ -1042,7 +1042,7 @@ function App() {
                             <Field
                               name="maintenancePercent"
                               validate={
-                                propertyValues.maintenanceCalculationChoice ===
+                                values?.maintenanceCalculationChoice ===
                                 "percent"
                                   ? composeValidators(
                                       required,
