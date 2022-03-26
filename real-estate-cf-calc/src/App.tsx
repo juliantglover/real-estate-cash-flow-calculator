@@ -1130,7 +1130,7 @@ function App() {
                       </Row>
                     </Container>
 
-                    <Spacer margin="1em" />
+   <Spacer margin="1em" />
                   </Box>
                 </Container>
               </form>
