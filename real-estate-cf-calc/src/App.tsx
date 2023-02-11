@@ -27,13 +27,12 @@ function App() {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    window.addEventListener('resize', handleResize);
-}
-  )
+    window.addEventListener("resize", handleResize);
+  });
 
   const handleResize = () => {
-    setScreenWidth(window.innerWidth)
-  }
+    setScreenWidth(window.innerWidth);
+  };
   const [propertyValues, setPropertyValues] = useState({
     purchasePrice: 0,
     rent: 0,
@@ -142,7 +141,8 @@ function App() {
     const netOperatingIncome: number =
       Number(propertyValues.rent) - netOperatingExpenses;
     const cashFlow: number = Number(propertyValues.rent) - totalMonthlyExpenses;
-    const requiredStartingCapital: number = Number(closingCosts) + Number(downPayment);
+    const requiredStartingCapital: number =
+      Number(closingCosts) + Number(downPayment);
 
     let capRate: number = 0;
     if (propertyValues.purchasePrice > 0) {
@@ -265,7 +265,7 @@ function App() {
       borderRight: "solid 1px #1976d2",
       borderRadius: "2px",
       padding: "10px",
-      height: "100%"
+      height: "100%",
     };
   }
   return (
@@ -792,12 +792,16 @@ function App() {
 
                             <Field
                               name="propertyManagementPercent"
-                              validate={values?.propertyManagementCalculationChoice ===
-                                "percent" ? composeValidators(
-                                required,
-                                mustBeNumber,
-                                minValue(0),
-                                ): null}
+                              validate={
+                                values?.propertyManagementCalculationChoice ===
+                                "percent"
+                                  ? composeValidators(
+                                      required,
+                                      mustBeNumber,
+                                      minValue(0)
+                                    )
+                                  : null
+                              }
                             >
                               {({ input, meta }) => (
                                 <div>
@@ -1130,7 +1134,7 @@ function App() {
                       </Row>
                     </Container>
 
-   <Spacer margin="1em" />
+                    <Spacer margin="1em" />
                   </Box>
                 </Container>
               </form>
@@ -1183,13 +1187,17 @@ function App() {
                         key="totalMonthly"
                         sx={{ borderTop: "solid 2px black" }}
                       >
-                        <TableCell component="th" scope="row">
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          style={{ color: "#FF3D00" }}
+                        >
                           Total Expenses
                         </TableCell>
-                        <TableCell align="right">
+                        <TableCell align="right" style={{ color: "#FF3D00" }}>
                           {formatCurrency(cashFlowValues.totalMonthlyExpenses)}
                         </TableCell>
-                        <TableCell align="right">
+                        <TableCell align="right" style={{ color: "#FF3D00" }}>
                           {formatCurrency(
                             cashFlowValues.totalMonthlyExpenses * 12
                           )}
@@ -1197,15 +1205,17 @@ function App() {
                       </TableRow>
                       <TableRow key="rent">
                         <TableCell component="th" scope="row">
-                          <span style={{ fontWeight: 500 }}>Rent</span>
+                          <span style={{ fontWeight: 500, color: "#00BFA5" }}>
+                            Rent
+                          </span>
                         </TableCell>
                         <TableCell align="right">
-                          <span style={{ fontWeight: 500 }}>
+                          <span style={{ fontWeight: 500, color: "#00BFA5" }}>
                             {formatCurrency(propertyValues.rent)}
                           </span>
                         </TableCell>
                         <TableCell align="right">
-                          <span style={{ fontWeight: 500 }}>
+                          <span style={{ fontWeight: 500, color: "#00BFA5" }}>
                             {formatCurrency(propertyValues.rent * 12)}
                           </span>
                         </TableCell>
@@ -1215,15 +1225,17 @@ function App() {
                         sx={{ borderTop: "solid 2px black" }}
                       >
                         <TableCell component="th" scope="row">
-                          <span style={{ fontWeight: 500 }}>Cash Flow</span>
+                          <span style={{ fontWeight: 500, color: "#00BFA5" }}>
+                            Cash Flow
+                          </span>
                         </TableCell>
                         <TableCell align="right">
-                          <span style={{ fontWeight: 500 }}>
+                          <span style={{ fontWeight: 500, color: "#00BFA5" }}>
                             {formatCurrency(cashFlowValues.cashFlow)}
                           </span>
                         </TableCell>
                         <TableCell align="right">
-                          <span style={{ fontWeight: 500 }}>
+                          <span style={{ fontWeight: 500, color: "#00BFA5" }}>
                             {formatCurrency(cashFlowValues.cashFlow * 12)}
                           </span>
                         </TableCell>
@@ -1287,25 +1299,73 @@ function App() {
                         );
                       })}
                       <TableRow>
-                        <TableCell component="th" scope="row">
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          style={{ color: "#FF3D00" }}
+                        >
                           <span style={{ fontWeight: 500 }}>
+                            Fixed Expenses (per Month)
+                          </span>
+                        </TableCell>
+                        <TableCell align="right" style={{ color: "#FF3D00" }}>
+                          <span style={{ fontWeight: 500 }}>
+                            $ {formatCurrency(cashFlowValues.fixedExpenses)}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" scope="row">
+                          <span style={{ fontWeight: 500, color: "#00BFA5" }}>
+                            Gross Return (per Month)
+                          </span>
+                        </TableCell>
+                        <TableCell align="right">
+                          <span style={{ fontWeight: 500, color: "#00BFA5" }}>
+                            ${" "}
+                            {formatCurrency(
+                              propertyValues.rent - cashFlowValues.fixedExpenses
+                            )}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" scope="row">
+                          <span style={{ fontWeight: 500, color: "#00BFA5" }}>
+                            Gross Return (per Year)
+                          </span>
+                        </TableCell>
+                        <TableCell align="right">
+                          <span style={{ fontWeight: 500, color: "#00BFA5" }}>
+                            ${" "}
+                            {formatCurrency(
+                              (propertyValues.rent -
+                                cashFlowValues.fixedExpenses) *
+                                12
+                            )}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell component="th" scope="row">
+                          <span style={{ fontWeight: 500, color: "#00BFA5" }}>
                             Cash Flow (per Month)
                           </span>
                         </TableCell>
                         <TableCell align="right">
-                          <span style={{ fontWeight: 500 }}>
+                          <span style={{ fontWeight: 500, color: "#00BFA5" }}>
                             $ {formatCurrency(cashFlowValues.cashFlow)}
                           </span>
                         </TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell component="th" scope="row">
-                          <span style={{ fontWeight: 500 }}>
+                          <span style={{ fontWeight: 500, color: "#00BFA5" }}>
                             Cash Flow (per Year)
                           </span>
                         </TableCell>
                         <TableCell align="right">
-                          <span style={{ fontWeight: 500 }}>
+                          <span style={{ fontWeight: 500, color: "#00BFA5" }}>
                             $ {formatCurrency(cashFlowValues.cashFlow * 12)}
                           </span>
                         </TableCell>
