@@ -13,7 +13,7 @@ export const TextField = ({
   fieldId,
   hasAdornment = false,
   adornmentPosition = "start",
-  adornment,
+  adornment = "",
   disabled = false,
   error = false,
   errorText = null,
